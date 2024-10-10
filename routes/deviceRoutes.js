@@ -1,11 +1,13 @@
 const express = require('express')
-const { getAllDevice, findOneDevice, createDevice, editDevice } = require('../controllers/deviceController')
+const { getAllDevice, findOneDevice, createDevice, editDevice, deleteDevice } = require('../controllers/deviceController')
+const { verifyToken } = require('../middlewares/verifyToken')
 
 const router = express.Router()
 
-router.get('/', getAllDevice)
-router.get('/:id', findOneDevice)
-router.post('/create', createDevice)
-router.post('/edit/:id', editDevice)
+router.get('/', verifyToken, getAllDevice)
+router.get('/:id', verifyToken, findOneDevice)
+router.post('/create', verifyToken, createDevice)
+router.post('/update', verifyToken, editDevice)
+router.delete('/delete/:id', verifyToken, deleteDevice)
 
 module.exports = router;

@@ -2,8 +2,18 @@ const CardReader = require("../models/cardReaderModel");
 
 const getAllCardReader = async (req, res) => {
     try {
-        const cardReaders = await CardReader.find({})
-        res.status(200).json(cardReaders)
+        const cardReaders = await CardReader.aggregate([
+            {
+                $lookup: {
+                    from: 'users', // Bảng Device
+                    localField: '_id', // Trường liên kết (room._id)
+                    foreignField: 'cardReader', // Trường liên kết bên Device (device.room)
+                    as: 'users' // Đặt kết quả vào mảng devices
+                }
+            }
+        ]
+        )
+        res.status(200).json(cardReaders.reverse())
     } catch (error) {
         res.status(500).json({ error: error.message });
         console.log(error.message)
@@ -25,23 +35,15 @@ const createCardReader = async (req, res) => {
     try {
         const { cardId, location, status } = req.body
 
-        const lastAccessed = new Date()
-
         const newCardReader = new CardReader({
             cardId,
             location,
             status,
-            lastAccessed
         })
 
         await newCardReader.save()
 
-        res.status(200).json({
-            cardId,
-            location,
-            status,
-            lastAccessed
-        })
+        res.status(200).json(newCardReader)
 
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -52,7 +54,6 @@ const createCardReader = async (req, res) => {
 const editCardReader = async (req, res) => {
     try {
         const { cardId, location, status } = req.body
-        const lastAccessed = new Date()
 
         const cardReader = await CardReader.findOne({ cardId })
         if (!cardReader) {
@@ -62,10 +63,25 @@ const editCardReader = async (req, res) => {
         cardReader.cardId = cardId
         cardReader.location = location
         cardReader.status = status
-        cardReader.lastAccessed = lastAccessed
 
         await cardReader.save()
         res.status(200).json(cardReader)
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+        console.log(error.message)
+    }
+}
+
+const deleteCardreader = async (req, res) => {
+    try {
+        const { _id } = req.params
+        const cardReader = await CardReader.findOne({ _id })
+        if (!cardReader) {
+            return res.status(400).json({ error: 'CardReader not found!' })
+        }
+        const response = await CardReader.deleteOne({ _id })
+        res.status(200).json(response)
 
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -78,4 +94,5 @@ module.exports = {
     findOneCardReader,
     createCardReader,
     editCardReader,
+    deleteCardreader
 }

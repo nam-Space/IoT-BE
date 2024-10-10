@@ -6,8 +6,8 @@ const userSchema = new mongoose.Schema({
     address: { type: String, required: true },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    cardId: { type: String, unique: true }, // Thẻ từ để mở khóa
-    accessLevel: { type: String }, // Mức độ truy cập (user/admin)
+    role: { type: String, required: true }, // Mức độ truy cập (user/admin)
+    cardReader: { type: mongoose.Schema.Types.ObjectId, ref: 'CardReader' }
 });
 
 const User = mongoose.model('User', userSchema)

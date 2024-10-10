@@ -1,11 +1,13 @@
 const express = require('express');
-const { createCardReader, editCardReader, getAllCardReader, findOneCardReader } = require('../controllers/cardReaderController');
+const { createCardReader, editCardReader, getAllCardReader, findOneCardReader, deleteCardreader } = require('../controllers/cardReaderController');
+const { verifyToken } = require('../middlewares/verifyToken');
 
 const router = express.Router()
 
-router.get('/', getAllCardReader)
-router.get('/:id', findOneCardReader)
-router.post('/create', createCardReader)
-router.post('/edit', editCardReader)
+router.get('/', verifyToken, getAllCardReader)
+router.get('/:id', verifyToken, findOneCardReader)
+router.post('/create', verifyToken, createCardReader)
+router.post('/update', verifyToken, editCardReader)
+router.delete('/delete/:id', verifyToken, deleteCardreader)
 
 module.exports = router;

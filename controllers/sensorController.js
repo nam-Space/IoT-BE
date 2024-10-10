@@ -2,8 +2,13 @@ const Sensor = require("../models/sensorModel");
 
 const getAllSensor = async (req, res) => {
     try {
-        const sensors = await Sensor.find({})
-        res.status(200).json(sensors)
+        const sensors = await Sensor.find({}).populate({
+            path: 'room',
+        }
+        ).populate({
+            path: 'device',
+        })
+        res.status(200).json(sensors.reverse())
     } catch (error) {
         res.status(500).json({ error: error.message });
         console.log(error.message)
@@ -23,15 +28,17 @@ const findOneSensor = async (req, res) => {
 
 const createSensor = async (req, res) => {
     try {
-        const { type, value, location } = req.body
-
-        const lastUpdated = new Date()
+        const { name, type, value, location, tempature, humidity, roomId, deviceId } = req.body
 
         const newSensor = new Sensor({
+            name,
             type,
             value,
             location,
-            lastUpdated
+            tempature,
+            humidity,
+            room: roomId,
+            device: deviceId
         })
 
         await newSensor.save()
@@ -46,22 +53,40 @@ const createSensor = async (req, res) => {
 
 const editSensor = async (req, res) => {
     try {
-        const { _id } = req.params
-        const { type, value, location } = req.body
-        const lastUpdated = new Date()
+        const { _id, name, type, value, location, temperature, humidity, roomId, deviceId } = req.body
 
         const sensor = await Sensor.findOne({ _id })
         if (!sensor) {
             return res.status(400).json({ error: 'Sensor not found!' })
         }
 
-        sensor.type = type
-        sensor.value = value
-        sensor.location = location
-        sensor.lastUpdated = lastUpdated
+        sensor.name = name || sensor.name
+        sensor.type = type || sensor.type
+        sensor.value = value || sensor.value
+        sensor.location = location || sensor.location
+        sensor.temperature = temperature || sensor.temperature
+        sensor.humidity = humidity || sensor.humidity
+        sensor.room = roomId || sensor.room
+        sensor.device = deviceId || sensor.device
 
         await sensor.save()
         res.status(200).json(sensor)
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+        console.log(error.message)
+    }
+}
+
+const deleteSensor = async (req, res) => {
+    try {
+        const { _id } = req.params
+        const sensor = await Sensor.findOne({ _id })
+        if (!sensor) {
+            return res.status(400).json({ error: 'Sensor not found!' })
+        }
+        const response = await Sensor.deleteOne({ _id })
+        res.status(200).json(response)
 
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -74,4 +99,5 @@ module.exports = {
     findOneSensor,
     createSensor,
     editSensor,
+    deleteSensor
 }
