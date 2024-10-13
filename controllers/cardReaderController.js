@@ -53,16 +53,16 @@ const createCardReader = async (req, res) => {
 
 const editCardReader = async (req, res) => {
     try {
-        const { cardId, location, status } = req.body
+        const { _id, cardId, location, status } = req.body
 
-        const cardReader = await CardReader.findOne({ cardId })
+        const cardReader = await CardReader.findOne({ _id })
         if (!cardReader) {
             return res.status(400).json({ error: 'Card reader not found!' })
         }
 
-        cardReader.cardId = cardId
-        cardReader.location = location
-        cardReader.status = status
+        cardReader.cardId = cardId || cardReader.cardId
+        cardReader.location = location || cardReader.location
+        cardReader.status = status || cardReader.status
 
         await cardReader.save()
         res.status(200).json(cardReader)
@@ -75,12 +75,12 @@ const editCardReader = async (req, res) => {
 
 const deleteCardreader = async (req, res) => {
     try {
-        const { _id } = req.params
-        const cardReader = await CardReader.findOne({ _id })
+        const { id } = req.params
+        const cardReader = await CardReader.findOne({ _id: id })
         if (!cardReader) {
             return res.status(400).json({ error: 'CardReader not found!' })
         }
-        const response = await CardReader.deleteOne({ _id })
+        const response = await CardReader.deleteOne({ _id: id })
         res.status(200).json(response)
 
     } catch (error) {
