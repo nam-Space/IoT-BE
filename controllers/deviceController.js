@@ -79,17 +79,15 @@ const editDevice = async (req, res) => {
 
         await device.save()
 
-        if (performance >= 0) {
-            const accessLog = new AccessLog({
-                performance,
-                status,
-                user: userId,
-                device: _id,
-                timeLog: new Date()
-            })
+        const accessLog = new AccessLog({
+            performance,
+            status,
+            user: userId,
+            device: _id,
+            timeLog: new Date()
+        })
 
-            await accessLog.save()
-        }
+        await accessLog.save()
 
         const updatedDevice = await Device.findOne({ _id: device._id }).populate({
             path: 'room'

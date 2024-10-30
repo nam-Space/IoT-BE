@@ -3,7 +3,8 @@ const AccessLog = require("../models/accessLogModel");
 
 const getAllAccessLog = async (req, res) => {
     try {
-        const accessLogs = await AccessLog.find({}).populate({
+        const { type } = req.query
+        let accessLogs = await AccessLog.find({}).populate({
             path: 'user'
         }).populate({
             path: 'device',
@@ -11,6 +12,9 @@ const getAllAccessLog = async (req, res) => {
                 { path: 'room', model: 'Room' },
             ]
         })
+
+        if (type) accessLogs = accessLogs.filter(log => log.device && log.device.type === type);
+
         res.status(200).json(accessLogs.reverse())
     } catch (error) {
         res.status(500).json({ error: error.message });

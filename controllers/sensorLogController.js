@@ -2,13 +2,17 @@ const SensorLog = require("../models/sensorLogModel");
 
 const getAllSensorLog = async (req, res) => {
     try {
-        const sensorLogs = await SensorLog.find({}).populate({
+        const { type } = req.query
+        let sensorLogs = await SensorLog.find({}).populate({
             path: 'sensor',
             populate: [
                 { path: 'room', model: 'Room' },
                 { path: 'device', model: 'Device' }
             ]
         })
+
+        if (type) sensorLogs = sensorLogs.filter(log => log.sensor && log.sensor.type === type);
+
         res.status(200).json(sensorLogs.reverse())
     } catch (error) {
         res.status(500).json({ error: error.message });
