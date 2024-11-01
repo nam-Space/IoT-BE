@@ -16,6 +16,18 @@ const handlePublish = (device, roomName) => {
                 client.publish(ROOM.LIVING_ROOM, `fan-control AUTO`);
             }
         }
+
+        else if (device.type === DEVICE.LED) {
+            if (device.status === STATUS.ON) {
+                client.publish(ROOM.LIVING_ROOM, `door-control ON`);
+            }
+            else if (device.status === STATUS.OFF) {
+                client.publish(ROOM.LIVING_ROOM, `door-control OFF`);
+            }
+            else {
+                client.publish(ROOM.LIVING_ROOM, `door-control AUTO`);
+            }
+        }
     }
     else if (roomName.toUpperCase() === ROOM.KITCHEN_ROOM) {
         if (device.type === DEVICE.VENTILATION_FAN) {
