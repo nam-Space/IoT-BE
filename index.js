@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express();
+const { app, server, io } = require('./socket/socket');
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dbConnect = require("./db/dbConnect");
@@ -14,10 +14,12 @@ const sensorLogRoutes = require('./routes/sensorLogRoutes')
 const mqtt = require('mqtt');
 const { createSensorLog } = require("./controllers/sensorLogController");
 const { editSensor } = require("./controllers/sensorController");
+const { ROOM } = require("./constants/room");
+const { DEVICE } = require("./constants/device");
 const client = mqtt.connect(`mqtt://localhost:${process.env.PORT_BROKER}`);
 
 const aedes = require('aedes')();
-const server = require('net').createServer(aedes.handle);
+const serverBroker = require('net').createServer(aedes.handle);
 
 const portBroker = Number(process.env.PORT_BROKER);
 
@@ -49,7 +51,7 @@ app.get("/", (request, response) => {
     response.send({ message: "Hello from IoT app API!" });
 });
 
-server.listen(portBroker, function () {
+serverBroker.listen(portBroker, function () {
     console.log(`MQTT broker is running on portBroker ${portBroker}`);
 });
 
@@ -64,7 +66,20 @@ aedes.on('clientDisconnect', (client) => {
 aedes.on('publish', async (packet, client) => {
     console.log(`Message received on topic ${packet.topic}: ${packet.payload}`);
     try {
-        if (packet.topic === 'SENSOR') {
+        if (packet.topic === ROOM.FRONT_YARD) {
+            let message = packet.payload.toString();
+            console.log(message)
+            message = message.trim();
+            message = message.replace(/\s+/g, ' ');
+
+            let arrStr = message.split(' ')
+            if (arrStr[0] === DEVICE.RFID) {
+                io.emit("loginToUser", {
+                    cardId: arrStr[1]
+                })
+            }
+        }
+        else if (packet.topic === 'SENSOR') {
             const message = packet.payload.toString();
             const { temperature, humidity, sensor } = JSON.parse(message);
 
@@ -111,6 +126,6 @@ client.on('connect', () => {
     console.log('Connected to broker');
 });
 
-app.listen(8080, () => {
+server.listen(8080, () => {
     console.log(`server listening on http://localhost:${8080}`);
 });

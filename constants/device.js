@@ -4,6 +4,7 @@ const DEVICE = {
     VENTILATION_FAN: 'VENTILATION_FAN',
     SMOKE_ALARM: 'SMOKE_ALARM',
     WINDOW: 'WINDOW',
+    RFID: 'RFID',
 }
 
 const STATUS = {

@@ -2,6 +2,8 @@ const User = require("../models/userModel");
 const bcrypt = require('bcryptjs');
 const generateTokenAndSetCookie = require("../utils/generateTokenAndSetCookie");
 const CardReader = require("../models/cardReaderModel");
+const Device = require("../models/deviceModel");
+const { DEVICE, STATUS } = require("../constants/device");
 
 const createUser = async (req, res) => {
     try {
@@ -56,29 +58,64 @@ const createUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const { username, password } = req.body
-        const user = await User.findOne({ username })
-        if (!user) {
-            return res.status(400).json({ error: 'Invalid username' })
+        const { cardId, username, password } = req.body
+        if (cardId) {
+            const device = await Device.findOne({ type: DEVICE.RFID })
+            if (device.status === STATUS.OFF) {
+                return res.status(400).json('Chỗ quẹt thẻ RFID bị vô hiệu hóa');
+            }
+            // Tìm cardReader dựa vào cardId
+            const cardReader = await CardReader.findOne({ cardId: cardId });
+            if (!cardReader) {
+                return res.status(400).json('CardReader không được tìm thấy');
+            }
+
+            if (cardReader.status === STATUS.OFF) {
+                return res.status(400).json('CardReader bị vô hiệu hóa');
+            }
+
+            // Tìm User liên kết với cardReader và populate
+            const user = await User.findOne({ cardReader: cardReader._id })
+            if (!user) {
+                return res.status(400).json('User không được tìm thấy');
+            }
+
+            const token = generateTokenAndSetCookie(user._id, res)
+
+            res.status(200).json({
+                _id: user._id,
+                name: user.name,
+                gender: user.gender,
+                address: user.address,
+                username: user.username,
+                cardReader: user.cardReader,
+                role: user.role,
+                token
+            })
         }
+        else {
+            const user = await User.findOne({ username })
+            if (!user) {
+                return res.status(400).json({ error: 'Invalid username' })
+            }
 
-        const isPasswordCorrect = await bcrypt.compare(password, user.password)
-        if (!isPasswordCorrect) {
-            return res.status(400).json({ error: 'Invalid password' })
+            const isPasswordCorrect = await bcrypt.compare(password, user.password)
+            if (!isPasswordCorrect) {
+                return res.status(400).json({ error: 'Invalid password' })
+            }
+            const token = generateTokenAndSetCookie(user._id, res)
+
+            res.status(200).json({
+                _id: user._id,
+                name: user.name,
+                gender: user.gender,
+                address: user.address,
+                username: user.username,
+                cardReader: user.cardReader,
+                role: user.role,
+                token
+            })
         }
-        const token = generateTokenAndSetCookie(user._id, res)
-
-        res.status(200).json({
-            _id: user._id,
-            name: user.name,
-            gender: user.gender,
-            address: user.address,
-            username: user.username,
-            cardReader: user.cardReader,
-            role: user.role,
-            token
-        })
-
     } catch (error) {
         res.status(500).json({ error: error.message });
         console.log(error.message)
