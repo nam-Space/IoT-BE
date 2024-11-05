@@ -8,6 +8,7 @@ const sensorSchema = new mongoose.Schema({
     location: { type: String }, // Vị trí lắp đặt cảm biến
     room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room' }, // Reference to Room
     device: { type: mongoose.Schema.Types.ObjectId, ref: 'Device' }, // Reference to Device
+    status: { type: String }
 });
 
 const Sensor = mongoose.model('Sensor', sensorSchema)

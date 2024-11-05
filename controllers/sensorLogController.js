@@ -33,13 +33,14 @@ const findOneSensorLog = async (req, res) => {
 
 const createSensorLog = async (req, res) => {
     try {
-        const { temperature, humidity, sensorId } = req.body
+        const { temperature, humidity, sensorId, status } = req.body
 
         const sensorLog = new SensorLog({
             temperature,
             humidity,
             sensor: sensorId,
-            timeLog: new Date()
+            timeLog: new Date(),
+            status
         })
 
         await sensorLog.save()
@@ -54,17 +55,18 @@ const createSensorLog = async (req, res) => {
 
 const editSensorLog = async (req, res) => {
     try {
-        const { _id, temperature, humidity, sensorId } = req.body
+        const { _id, temperature, humidity, sensorId, status } = req.body
 
         const sensorLog = await SensorLog.findOne({ _id: id })
         if (!sensorLog) {
             return res.status(400).json({ error: 'SensorLog not found!' })
         }
 
-        sensorLog.temperature = temperature
-        sensorLog.humidity = humidity
-        sensorLog.sensor = sensorId
+        sensorLog.temperature = temperature || sensorLog.temperature
+        sensorLog.humidity = humidity || sensorLog.humidity
+        sensorLog.sensor = sensorId || sensorLog.sensor
         sensorLog.timeLog = new Date()
+        sensorLog.status = status || sensorLog.status
 
         await sensorLog.save()
         res.status(200).json(sensorLog)

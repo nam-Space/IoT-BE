@@ -81,13 +81,14 @@ aedes.on('publish', async (packet, client) => {
         }
         else if (packet.topic === 'SENSOR') {
             const message = packet.payload.toString();
-            const { temperature, humidity, sensor } = JSON.parse(message);
+            const { temperature, humidity, sensor, status } = JSON.parse(message);
 
             const reqSensorLog = {
                 body: {
                     temperature,
                     humidity,
-                    sensorId: sensor
+                    sensorId: sensor,
+                    status
                 }
             };
 
@@ -105,6 +106,7 @@ aedes.on('publish', async (packet, client) => {
                     _id: sensor,
                     temperature,
                     humidity,
+                    status
                 }
             };
 

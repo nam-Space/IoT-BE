@@ -28,7 +28,7 @@ const findOneSensor = async (req, res) => {
 
 const createSensor = async (req, res) => {
     try {
-        const { name, type, value, location, tempature, humidity, roomId, deviceId } = req.body
+        const { name, type, value, location, tempature, humidity, roomId, deviceId, status } = req.body
 
         const newSensor = new Sensor({
             name,
@@ -38,7 +38,8 @@ const createSensor = async (req, res) => {
             tempature,
             humidity,
             room: roomId,
-            device: deviceId
+            device: deviceId,
+            status
         })
 
         await newSensor.save()
@@ -53,7 +54,7 @@ const createSensor = async (req, res) => {
 
 const editSensor = async (req, res) => {
     try {
-        const { _id, name, type, value, location, temperature, humidity, roomId, deviceId } = req.body
+        const { _id, name, type, value, location, temperature, humidity, roomId, deviceId, status } = req.body
 
         const sensor = await Sensor.findOne({ _id })
         if (!sensor) {
@@ -68,6 +69,7 @@ const editSensor = async (req, res) => {
         sensor.humidity = humidity || sensor.humidity
         sensor.room = roomId || sensor.room
         sensor.device = deviceId || sensor.device
+        sensor.status = status || sensor.status
 
         await sensor.save()
         res.status(200).json(sensor)
