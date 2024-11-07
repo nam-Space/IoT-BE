@@ -30,7 +30,18 @@ const handlePublish = (device, roomName) => {
         }
     }
     else if (roomName.toUpperCase() === ROOM.KITCHEN_ROOM) {
-        if (device.type === DEVICE.VENTILATION_FAN) {
+        if (device.type === DEVICE.FAN) {
+            if (device.status === STATUS.ON) {
+                client.publish(ROOM.KITCHEN_ROOM, `fan-control ON performance-${device.performance}`);
+            }
+            else if (device.status === STATUS.OFF) {
+                client.publish(ROOM.KITCHEN_ROOM, `fan-control OFF`);
+            }
+            else {
+                client.publish(ROOM.KITCHEN_ROOM, `fan-control AUTO`);
+            }
+        }
+        else if (device.type === DEVICE.VENTILATION_FAN) {
             if (device.status === STATUS.ON) {
                 client.publish(ROOM.KITCHEN_ROOM, `ventilation-fan-control ON`);
             }
@@ -61,6 +72,41 @@ const handlePublish = (device, roomName) => {
             }
             else {
                 client.publish(ROOM.KITCHEN_ROOM, `window-smoke-control AUTO`);
+            }
+        }
+        else if (device.type === DEVICE.LED) {
+            if (device.status === STATUS.ON) {
+                client.publish(ROOM.KITCHEN_ROOM, `led-control ON`);
+            }
+            else if (device.status === STATUS.OFF) {
+                client.publish(ROOM.KITCHEN_ROOM, `led-control OFF`);
+            }
+            else {
+                client.publish(ROOM.KITCHEN_ROOM, `led-control AUTO`);
+            }
+        }
+    }
+    else if (roomName.toUpperCase() === ROOM.BED_ROOM) {
+        if (device.type === DEVICE.FAN) {
+            if (device.status === STATUS.ON) {
+                client.publish(ROOM.BED_ROOM, `fan-control ON performance-${device.performance}`);
+            }
+            else if (device.status === STATUS.OFF) {
+                client.publish(ROOM.BED_ROOM, `fan-control OFF`);
+            }
+            else {
+                client.publish(ROOM.BED_ROOM, `fan-control AUTO`);
+            }
+        }
+        else if (device.type === DEVICE.LED) {
+            if (device.status === STATUS.ON) {
+                client.publish(ROOM.BED_ROOM, `led-control ON`);
+            }
+            else if (device.status === STATUS.OFF) {
+                client.publish(ROOM.BED_ROOM, `led-control OFF`);
+            }
+            else {
+                client.publish(ROOM.BED_ROOM, `led-control AUTO`);
             }
         }
     }
