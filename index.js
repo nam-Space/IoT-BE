@@ -10,12 +10,14 @@ const deviceRoutes = require('./routes/deviceRoutes')
 const roomRoutes = require('./routes/roomRoutes')
 const accessLogRoutes = require('./routes/accessLogRoutes')
 const sensorLogRoutes = require('./routes/sensorLogRoutes')
+const cardReaderLogRoutes = require('./routes/cardReaderLogRoutes')
 
 const mqtt = require('mqtt');
 const { createSensorLog } = require("./controllers/sensorLogController");
 const { editSensor } = require("./controllers/sensorController");
 const { ROOM } = require("./constants/room");
 const { DEVICE } = require("./constants/device");
+const { createCardReaderLog } = require("./controllers/cardReaderLogController");
 const client = mqtt.connect(`mqtt://localhost:${process.env.PORT_BROKER}`);
 
 const aedes = require('aedes')();
@@ -46,6 +48,7 @@ app.use('/api/devices', deviceRoutes)
 app.use('/api/rooms', roomRoutes)
 app.use('/api/accessLogs', accessLogRoutes)
 app.use('/api/sensorLogs', sensorLogRoutes)
+app.use('/api/cardReaderLogs', cardReaderLogRoutes)
 
 app.get("/", (request, response) => {
     response.send({ message: "Hello from IoT app API!" });
@@ -63,7 +66,7 @@ aedes.on('clientDisconnect', (client) => {
     console.log(`Client disconnected: ${client.id}`);
 });
 
-aedes.on('publish', async (packet, client) => {
+aedes.on('publish', async (packet, clientESP) => {
     console.log(`Message received on topic ${packet.topic}: ${packet.payload}`);
     try {
         if (packet.topic === ROOM.FRONT_YARD) {
@@ -118,6 +121,28 @@ aedes.on('publish', async (packet, client) => {
             };
 
             await editSensor(reqSensor, resSensor)
+        }
+        else if (packet.topic === "rfid/uid") {
+            const message = packet.payload.toString();
+            const { cardId, status } = JSON.parse(message);
+            const reqCardReaderLog = {
+                body: {
+                    cardId,
+                    status
+                }
+            };
+
+            const resCardReaderLog = {
+                status: (statusCode) => ({
+                    json: (response) => {
+                        console.log(`Response cardReader log: ${statusCode}`, response)
+                        client.publish('RFID_HIEU', response.doorState ? (response.doorState === "OPEN" ? "true" : 'false') : 'Successful!')
+                    }
+                }),
+                json: (response) => console.log(`Response cardReader log: `, response)
+            };
+
+            await createCardReaderLog(reqCardReaderLog, resCardReaderLog)
         }
     } catch (error) {
         console.error('Error processing MQTT message:', error);

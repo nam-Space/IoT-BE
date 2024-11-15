@@ -19,13 +19,13 @@ const handlePublish = (device, roomName) => {
 
         else if (device.type === DEVICE.LED) {
             if (device.status === STATUS.ON) {
-                client.publish(ROOM.LIVING_ROOM, `door-control ON`);
+                client.publish(ROOM.LIVING_ROOM, `led-control ON`);
             }
             else if (device.status === STATUS.OFF) {
-                client.publish(ROOM.LIVING_ROOM, `door-control OFF`);
+                client.publish(ROOM.LIVING_ROOM, `led-control OFF`);
             }
             else {
-                client.publish(ROOM.LIVING_ROOM, `door-control AUTO`);
+                client.publish(ROOM.LIVING_ROOM, `led-control AUTO`);
             }
         }
     }
@@ -107,6 +107,19 @@ const handlePublish = (device, roomName) => {
             }
             else {
                 client.publish(ROOM.BED_ROOM, `led-control AUTO`);
+            }
+        }
+    }
+    else if (roomName.toUpperCase() === ROOM.BALCONY) {
+        if (device.type === DEVICE.RAIN_COVER) {
+            if (device.status === STATUS.ON) {
+                client.publish(ROOM.BALCONY, `rain-cover-control ON`);
+            }
+            else if (device.status === STATUS.OFF) {
+                client.publish(ROOM.BALCONY, `rain-cover-control OFF`);
+            }
+            else {
+                client.publish(ROOM.BALCONY, `rain-cover-control AUTO`);
             }
         }
     }

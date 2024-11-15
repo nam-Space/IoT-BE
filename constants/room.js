@@ -3,6 +3,7 @@ const ROOM = {
     KITCHEN_ROOM: 'KITCHEN ROOM',
     BED_ROOM: 'BED ROOM',
     FRONT_YARD: 'FRONT YARD',
+    BALCONY: 'BALCONY',
 }
 
 module.exports = {
