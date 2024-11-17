@@ -136,7 +136,12 @@ aedes.on('publish', async (packet, clientESP) => {
                 status: (statusCode) => ({
                     json: (response) => {
                         console.log(`Response cardReader log: ${statusCode}`, response)
-                        client.publish('RFID_HIEU', response.doorState ? (response.doorState === "OPEN" ? "true" : 'false') : 'Successful!')
+                        if (statusCode >= 200 && statusCode < 300) {
+                            client.publish('RFID_HIEU', response.doorState ? (response.doorState === "OPEN" ? "true" : 'false') : 'Successful!')
+                        }
+                        else {
+                            client.publish('RFID_HIEU', response.error)
+                        }
                     }
                 }),
                 json: (response) => console.log(`Response cardReader log: `, response)

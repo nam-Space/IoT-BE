@@ -31,13 +31,17 @@ const createCardReaderLog = async (req, res) => {
         const { cardId, status } = req.body
 
         if (status === 'REGISTER') {
-            const cardReader = await CardReader.create({
+            const cardReader = await CardReader.findOne({ cardId })
+            if (cardReader) {
+                return res.status(400).json({ error: 'Card ID Existed' })
+            }
+            const newCardReader = await CardReader.create({
                 cardId,
                 location: ROOM.FRONT_YARD,
                 status: STATUS.ON
             })
 
-            await cardReader.save()
+            await newCardReader.save()
 
             const cardReaderLog = new CardReaderLog({
                 cardId,
@@ -50,6 +54,9 @@ const createCardReaderLog = async (req, res) => {
         }
         else {
             const cardReader = await CardReader.findOne({ cardId, status: STATUS.ON })
+            if (!cardReader) {
+                return res.status(400).json({ error: 'Card ID Invalid!' })
+            }
 
             const cardReaderLog = new CardReaderLog({
                 cardId,
