@@ -20,7 +20,10 @@ const { DEVICE } = require("./constants/device");
 const { createCardReaderLog } = require("./controllers/cardReaderLogController");
 const client = mqtt.connect(`mqtt://localhost:${process.env.PORT_BROKER}`);
 
-const aedes = require('aedes')();
+const aedes = require('aedes')({
+    keepAliveTimeout: 1, // Thời gian chờ sau khi client không gửi tín hiệu
+    heartbeatInterval: 10000 // Kiểm tra heartbeat mỗi 10 giây
+});
 const serverBroker = require('net').createServer(aedes.handle);
 
 const portBroker = Number(process.env.PORT_BROKER);
@@ -60,10 +63,114 @@ serverBroker.listen(portBroker, function () {
 
 aedes.on('client', (client) => {
     console.log(`Client connected: ${client.id}`);
+    if (client.id === 'ESP8266Client') {
+        io.emit("esp-status", {
+            connected: true, room: {
+                [ROOM.LIVING_ROOM]: {
+                    devices: [DEVICE.FAN, DEVICE.LED]
+                },
+                [ROOM.KITCHEN_ROOM]: {
+                    devices: [DEVICE.VENTILATION_FAN, DEVICE.SMOKE_ALARM, DEVICE.WINDOW]
+                }
+            }
+        });
+    }
+    else if (client.id === 'Hieu') {
+        io.emit("esp-status", {
+            connected: true, room: {
+                [ROOM.FRONT_YARD]: {
+                    devices: [DEVICE.RFID]
+                },
+            }
+        });
+    }
+    else if (client.id === 'Nam2') {
+        io.emit("esp-status", {
+            connected: true, room: {
+                [ROOM.KITCHEN_ROOM]: {
+                    devices: [DEVICE.FAN]
+                },
+                [ROOM.BED_ROOM]: {
+                    devices: [DEVICE.FAN]
+                },
+            }
+        });
+    }
+    else if (client.id === 'TRI') {
+        io.emit("esp-status", {
+            connected: true, room: {
+                [ROOM.LIVING_ROOM]: {
+                    devices: [DEVICE.LED]
+                },
+                [ROOM.KITCHEN_ROOM]: {
+                    devices: [DEVICE.LED]
+                },
+                [ROOM.BED_ROOM]: {
+                    devices: [DEVICE.LED]
+                },
+                [ROOM.BALCONY]: {
+                    devices: [DEVICE.RAIN_COVER]
+                },
+
+            }
+        });
+    }
 });
 
 aedes.on('clientDisconnect', (client) => {
     console.log(`Client disconnected: ${client.id}`);
+    if (client.id === 'ESP8266Client') {
+        io.emit("esp-status", {
+            connected: false, room: {
+                [ROOM.LIVING_ROOM]: {
+                    devices: [DEVICE.FAN, DEVICE.LED]
+                },
+                [ROOM.KITCHEN_ROOM]: {
+                    devices: [DEVICE.VENTILATION_FAN, DEVICE.SMOKE_ALARM, DEVICE.WINDOW]
+                }
+            }
+        });
+    }
+    else if (client.id === 'Hieu') {
+        io.emit("esp-status", {
+            connected: false, room: {
+                [ROOM.FRONT_YARD]: {
+                    devices: [DEVICE.RFID]
+                },
+            }
+        });
+    }
+    else if (client.id === 'Nam2') {
+        io.emit("esp-status", {
+            connected: false, room: {
+                [ROOM.KITCHEN_ROOM]: {
+                    devices: [DEVICE.FAN]
+                },
+                [ROOM.BED_ROOM]: {
+                    devices: [DEVICE.FAN]
+                },
+            }
+        });
+    }
+    else if (client.id === 'TRI') {
+        io.emit("esp-status", {
+            connected: false, room: {
+                [ROOM.LIVING_ROOM]: {
+                    devices: [DEVICE.LED]
+                },
+                [ROOM.KITCHEN_ROOM]: {
+                    devices: [DEVICE.LED]
+                },
+                [ROOM.BED_ROOM]: {
+                    devices: [DEVICE.LED]
+                },
+                [ROOM.BALCONY]: {
+                    devices: [DEVICE.RAIN_COVER]
+                },
+
+            }
+        });
+    }
 });
 
 aedes.on('publish', async (packet, clientESP) => {
