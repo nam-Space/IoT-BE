@@ -1,0 +1,42 @@
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Thông báo CO₂</title>
+    <style>
+      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #f9f9f9); padding: 30px;
+      margin: 0; } .container { background: #ffffff; padding: 30px;
+      border-radius: 12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      max-width: 600px; margin: 0 auto; text-align: center; animation: fadeIn 1s
+      ease-in; } h2 { color:
+      {{#if IsCO2Exceed}}#e53935{{else}}#43a047{{/if}}; font-size: 28px;
+      margin-bottom: 20px; } p { color: #333; font-size: 16px; line-height: 1.6;
+      } .highlight { font-weight: bold; font-size: 18px; color:
+      {{#if IsCO2Exceed}}#d32f2f{{else}}#388e3c{{/if}}; } .footer { margin-top:
+      30px; font-size: 14px; color: #777; } @keyframes fadeIn { from { opacity:
+      0; transform: translateY(10px); } to { opacity: 1; transform:
+      translateY(0); } }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>{{#if IsCO2Exceed}}⚠️ Cảnh báo CO₂!{{else}}🌿 CO₂ An toàn!{{/if}}</h2>
+      <p>Xin chào <span class="highlight">{{fullName}}</span>,</p>
+      <p>
+        {{#if IsCO2Exceed}}
+          Nồng độ CO₂ hiện tại đã vượt ngưỡng cho phép:
+          <span class="highlight">{{CO2}} ppm</span>.<br />
+          🚨 Vui lòng kiểm tra hệ thống thông gió ngay nhé!
+        {{else}}
+          Nồng độ CO₂ hiện tại là:
+          <span class="highlight">{{CO2}} ppm</span>.<br />
+          🌸 Không khí trong lành, hãy tiếp tục duy trì sự an toàn này nhé!
+        {{/if}}
+      </p>
+      <div class="footer">
+        Trân trọng,<br />
+        <strong>Đội ngũ Quản lý Hệ thống</strong>
+      </div>
+    </div>
+  </body>
+</html>
