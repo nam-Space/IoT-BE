@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const ms = require("ms");
+require('dotenv').config()
 
 const generateTokenAndSetCookie = (userId, res) => {
     const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -9,7 +10,7 @@ const generateTokenAndSetCookie = (userId, res) => {
     res.cookie('jwt', token, {
         httpOnly: true,
         maxAge: ms(process.env.JWT_ACCESS_EXPIRE),
-        sameSite: 'strict'
+        // sameSite: 'strict'
     })
 
     return token

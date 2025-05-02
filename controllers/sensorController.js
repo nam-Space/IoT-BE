@@ -106,12 +106,12 @@ const editSensor = async (req, res) => {
 
 const deleteSensor = async (req, res) => {
   try {
-    const { _id } = req.params;
-    const sensor = await Sensor.findOne({ _id });
+    const { id } = req.params;
+    const sensor = await Sensor.findOne({ _id: id });
     if (!sensor) {
       return res.status(400).json({ error: "Sensor not found!" });
     }
-    const response = await Sensor.deleteOne({ _id });
+    const response = await Sensor.deleteOne({ _id: id });
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
