@@ -71,7 +71,7 @@ app.get("/", (request, response) => {
 });
 
 // API to change mode (AUTO or MANUAL)
-
+let lastCO2AlertTime = null;
 serverBroker.listen(portBroker, function () {
   console.log(`MQTT broker is running on portBroker ${portBroker}`);
 });
@@ -109,367 +109,6 @@ app.post("/device/:type/:state/:roomname", (req, res) => {
 
   return res.json({ message: `Sent ${message} to ESP32` });
 });
-// aedes.on("client", (client) => {
-//   console.log(`Client connected: ${client.id}`);
-//   if (client.id === "HoaNgo") {
-//     io.emit("esp-status", {
-//       connected: true,
-//       room: {
-//         [ROOM.LIVING_ROOM]: {
-//           devices: [DEVICE.VENTILATION_FAN],
-//         },
-//       },
-//     });
-//   } else if (client.id === "ESP8266Client") {
-//     io.emit("esp-status", {
-//       connected: true,
-//       room: {
-//         [ROOM.LIVING_ROOM]: {
-//           devices: [DEVICE.FAN, DEVICE.LED],
-//         },
-//         [ROOM.KITCHEN_ROOM]: {
-//           devices: [DEVICE.VENTILATION_FAN, DEVICE.SMOKE_ALARM, DEVICE.WINDOW],
-//         },
-//       },
-//     });
-//   } else if (client.id === "Hieu") {
-//     io.emit("esp-status", {
-//       connected: true,
-//       room: {
-//         [ROOM.FRONT_YARD]: {
-//           devices: [DEVICE.RFID],
-//         },
-//       },
-//     });
-//   } else if (client.id === "Nam2") {
-//     io.emit("esp-status", {
-//       connected: true,
-//       room: {
-//         [ROOM.KITCHEN_ROOM]: {
-//           devices: [DEVICE.FAN],
-//         },
-//         [ROOM.BED_ROOM]: {
-//           devices: [DEVICE.FAN],
-//         },
-//       },
-//     });
-//   } else if (client.id === "TRI") {
-//     io.emit("esp-status", {
-//       connected: true,
-//       room: {
-//         [ROOM.LIVING_ROOM]: {
-//           devices: [DEVICE.LED],
-//         },
-//         [ROOM.KITCHEN_ROOM]: {
-//           devices: [DEVICE.LED],
-//         },
-//         [ROOM.BED_ROOM]: {
-//           devices: [DEVICE.LED],
-//         },
-//         [ROOM.BALCONY]: {
-//           devices: [DEVICE.RAIN_COVER],
-//         },
-//       },
-//     });
-//   }
-// });
-
-// aedes.on("clientDisconnect", (client) => {
-//   console.log(`Client disconnected: ${client.id}`);
-//   if (client.id === "HoaNgo") {
-//     io.emit("esp-status", {
-//       connected: false,
-//       room: {
-//         [ROOM.LIVING_ROOM]: {
-//           devices: [DEVICE.VENTILATION_FAN],
-//         },
-//       },
-//     });
-//   } else if (client.id === "ESP8266Client") {
-//     io.emit("esp-status", {
-//       connected: false,
-//       room: {
-//         [ROOM.LIVING_ROOM]: {
-//           devices: [DEVICE.FAN, DEVICE.LED],
-//         },
-//         [ROOM.KITCHEN_ROOM]: {
-//           devices: [DEVICE.VENTILATION_FAN, DEVICE.SMOKE_ALARM, DEVICE.WINDOW],
-//         },
-//       },
-//     });
-//   } else if (client.id === "Hieu") {
-//     io.emit("esp-status", {
-//       connected: false,
-//       room: {
-//         [ROOM.FRONT_YARD]: {
-//           devices: [DEVICE.RFID],
-//         },
-//       },
-//     });
-//   } else if (client.id === "Nam2") {
-//     io.emit("esp-status", {
-//       connected: false,
-//       room: {
-//         [ROOM.KITCHEN_ROOM]: {
-//           devices: [DEVICE.FAN],
-//         },
-//         [ROOM.BED_ROOM]: {
-//           devices: [DEVICE.FAN],
-//         },
-//       },
-//     });
-//   } else if (client.id === "TRI") {
-//     io.emit("esp-status", {
-//       connected: false,
-//       room: {
-//         [ROOM.LIVING_ROOM]: {
-//           devices: [DEVICE.LED],
-//         },
-//         [ROOM.KITCHEN_ROOM]: {
-//           devices: [DEVICE.LED],
-//         },
-//         [ROOM.BED_ROOM]: {
-//           devices: [DEVICE.LED],
-//         },
-//         [ROOM.BALCONY]: {
-//           devices: [DEVICE.RAIN_COVER],
-//         },
-//       },
-//     });
-//   }
-// });
-
-// aedes.on("publish", async (packet, clientESP) => {
-//   console.log(`Message received on topic ${packet.topic}: ${packet.payload}`);
-//   try {
-//     if (packet.topic === ROOM.FRONT_YARD) {
-//       let message = packet.payload.toString();
-//       console.log(message);
-//       message = message.trim();
-//       message = message.replace(/\s+/g, " ");
-
-//       let arrStr = message.split(" ");
-//       if (arrStr[0] === DEVICE.RFID) {
-//         io.emit("loginToUser", {
-//           cardId: arrStr[1],
-//         });
-//       }
-//     } else if (packet.topic === "SENSOR") {
-//       const message = packet.payload.toString();
-//       console.log(message);
-//       // const { temperature, humidity, sensor, status } = JSON.parse(message);
-
-//       // const reqSensorLog = {
-//       //   body: {
-//       //     temperature,
-//       //     humidity,
-//       //     sensorId: sensor,
-//       //     status,
-//       //   },
-//       // };
-
-//       // const resSensorLog = {
-//       //   status: (statusCode) => ({
-//       //     json: (response) =>
-//       //       console.log(`Response sensor log: ${statusCode}`, response),
-//       //   }),
-//       //   json: (response) => console.log(`Response sensor log: `, response),
-//       // };
-
-//       // await createSensorLog(reqSensorLog, resSensorLog);
-
-//       // const reqSensor = {
-//       //   body: {
-//       //     _id: sensor,
-//       //     temperature,
-//       //     humidity,
-//       //     status,
-//       //   },
-//       // };
-
-//       // const resSensor = {
-//       //   status: (statusCode) => ({
-//       //     json: (response) =>
-//       //       console.log(`Response sensor: ${statusCode}`, response),
-//       //   }),
-//       //   json: (response) => console.log(`Response sensor: `, response),
-//       // };
-
-//       // await editSensor(reqSensor, resSensor);
-//     } else if (packet.topic === "rfid/uid") {
-//       const message = packet.payload.toString();
-//       const { cardId, status } = JSON.parse(message);
-//       const reqCardReaderLog = {
-//         body: {
-//           cardId,
-//           status,
-//         },
-//       };
-
-//       const resCardReaderLog = {
-//         status: (statusCode) => ({
-//           json: (response) => {
-//             console.log(`Response cardReader log: ${statusCode}`, response);
-//             if (statusCode >= 200 && statusCode < 300) {
-//               client.publish(
-//                 "RFID_HIEU",
-//                 response.doorState
-//                   ? response.doorState === "OPEN"
-//                     ? "true"
-//                     : "false"
-//                   : "Successful!"
-//               );
-//             } else {
-//               client.publish("RFID_HIEU", response.error);
-//             }
-//           },
-//         }),
-//         json: (response) => console.log(`Response cardReader log: `, response),
-//       };
-
-//       await createCardReaderLog(reqCardReaderLog, resCardReaderLog);
-//     }
-//   } catch (error) {
-//     console.error("Error processing MQTT message:", error);
-//   }
-// });
-
-// client.on("connect", () => {
-//   console.log("✅ Connected to MQTT Broker!");
-
-//   // Subscribe topic "SENSOR" (cùng tên với ESP32 publish)
-//   client.subscribe("SENSOR", (err) => {
-//     if (!err) {
-//       console.log("📡 Subscribed to topic: SENSOR");
-//     } else {
-//       console.error("❌ Subscribe error:", err);
-//     }
-//   });
-// });
-
-// // Lắng nghe dữ liệu từ topic "SENSOR"
-// client.on("message", async (topic, message) => {
-//   console.log(
-//     `📥 Received message on topic '${topic}': ${JSON.stringify(
-//       message.toString(),
-//       null,
-//       2
-//     )}`
-//   );
-
-//   try {
-//     console.log("test", JSON.parse(message.toString()));
-//     let {
-//       CO2,
-//       CO,
-//       SensorID,
-//       Fan,
-//       Buzzer,
-//       Servo,
-//       FanID,
-//       BuzzerID,
-//       ServoID,
-//       Mode,
-//     } = JSON.parse(message.toString());
-//     console.log("Mode", Mode);
-//     if (!CO2 || CO2 == "nan") CO2 = null;
-//     if (!CO || CO == "nan") CO = null;
-//     console.log("🌿 Parsed CO2 Data:");
-//     console.log(`CO2: ${CO2} ppm`);
-//     console.log(`CO: ${CO} ppm`);
-//     const reqSensorLog = {
-//       body: {
-//         sensorId: SensorID,
-//         CO2,
-//         CO,
-//       },
-//     };
-
-//     const resSensorLog = {
-//       status: (statusCode) => ({
-//         json: (response) =>
-//           console.log(`Response sensor log: ${statusCode}`, response),
-//       }),
-//       json: (response) => console.log(`Response sensor log: `, response),
-//     };
-
-//     await createSensorLog(reqSensorLog, resSensorLog);
-
-//     const reqSensor = {
-//       body: {
-//         _id: SensorID,
-//         CO2,
-//         CO,
-//       },
-//     };
-
-//     const resSensor = {
-//       status: (statusCode) => ({
-//         json: (response) =>
-//           console.log(`Response sensor: ${statusCode}`, response),
-//       }),
-//       json: (response) => console.log(`Response sensor: `, response),
-//     };
-
-//     await editSensor(reqSensor, resSensor);
-
-//     const reqAccessLog = {
-//       body: {
-//         performance: "20",
-//         status: Fan,
-//         deviceId: FanID,
-//         mode: Mode,
-//       },
-//     };
-//     console.log("body", reqAccessLog.body);
-//     const resAccessLog = {
-//       status: (code) => ({
-//         json: (data) => console.log(`📄 Status: ${code}`, data),
-//       }),
-//       json: (data) => console.log("📄 Response:", data),
-//     };
-
-//     // Gọi hàm tạo access log
-//     await createAccessLog(reqAccessLog, resAccessLog);
-//     const reqAccessLogBuzzer = {
-//       body: {
-//         performance: "20",
-//         status: Buzzer,
-//         deviceId: BuzzerID,
-//         mode: Mode,
-//       },
-//     };
-//     const resAccessLogBuzzer = {
-//       status: (code) => ({
-//         json: (data) => console.log(`📄 Status: ${code}`, data),
-//       }),
-//       json: (data) => console.log("📄 Response:", data),
-//     };
-
-//     // Gọi hàm tạo access log
-//     await createAccessLog(reqAccessLogBuzzer, resAccessLogBuzzer);
-
-//     const reqAccessLogServo = {
-//       body: {
-//         performance: "20",
-//         status: Servo,
-//         deviceId: ServoID,
-//         mode: Mode,
-//       },
-//     };
-//     const resAccessLogServo = {
-//       status: (code) => ({
-//         json: (data) => console.log(`📄 Status: ${code}`, data),
-//       }),
-//       json: (data) => console.log("📄 Response:", data),
-//     };
-
-//     // Gọi hàm tạo access log
-//     await createAccessLog(reqAccessLogServo, resAccessLogServo);
-//   } catch (err) {
-//     console.error("❌ JSON Parse error:", err.message);
-//   }
-// });
 
 client.on("connect", () => {
   console.log("✅ Connected to MQTT Broker!");
@@ -511,32 +150,33 @@ client.on("message", async (topic, message) => {
       console.log(`IsCO2Exceed: ${IsCO2Exceed}`);
 
       if (IsCO2Exceed === "true") {
-        sendEmail(
-          {
-            body: { IsCO2Exceed, CO2 },
-          },
-          {
-            status: (code) => ({
-              json: (data) => console.log(`Status ${code}:`, data),
-            }),
-            json: (data) => console.log("Thông báo:", data),
-          }
-        );
-        setTimeout(
-          sendEmail(
+        const now = Date.now();
+
+        // Nếu chưa từng gửi hoặc đã quá 30 phút thì gửi mail
+        if (!lastCO2AlertTime || now - lastCO2AlertTime >= 30 * 60 * 1000) {
+          lastCO2AlertTime = now;
+
+          await sendEmail(
             {
               body: { IsCO2Exceed, CO2 },
             },
             {
               status: (code) => ({
-                json: (data) => console.log(`Status ${code}:`, data),
+                json: (data) => console.log(`📧 Email Status ${code}:`, data),
               }),
-              json: (data) => console.log("Thông báo:", data),
+              json: (data) => console.log("📧 Email Sent:", data),
             }
-          ),
-          15 * 60 * 1000
-        );
+          );
+        } else {
+          const minutesLeft = Math.ceil(
+            (30 * 60 * 1000 - (now - lastCO2AlertTime)) / 60000
+          );
+          console.log(
+            `⏳ Email already sent. Wait ${minutesLeft} more minute(s).`
+          );
+        }
       }
+
       if (!CO2) CO2 = 350;
       // Lưu vào database sensor log
       if (SensorID && CO2 !== null) {
@@ -550,6 +190,18 @@ client.on("message", async (topic, message) => {
                 console.log(`📄 Sensor Log Status ${code}:`, data),
             }),
             json: (data) => console.log("📄 Sensor Log:", data),
+          }
+        );
+
+        await editSensor(
+          {
+            body: { _id: SensorID, CO2 },
+          },
+          {
+            status: (code) => ({
+              json: (data) => console.log(`📄 Sensor Status ${code}:`, data),
+            }),
+            json: (data) => console.log("📄 Sensor:", data),
           }
         );
       }
